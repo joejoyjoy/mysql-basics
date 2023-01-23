@@ -368,7 +368,7 @@ CREATE OR REPLACE VIEW current_dept_emp AS
         INNER JOIN dept_emp_latest_date l
         ON d.emp_no=l.emp_no AND d.from_date=l.from_date AND l.to_date = d.to_date;
 
--- # 1.4.3 GET DATA #
+# 1.4.3 GET DATA
 -- Select all employees with a salary greater than 20,000
 select e.emp_no, e.first_name, e.birth_date, e.first_name, e.last_name, e.gender, e.hire_date, s.salary from employees e left join salaries s on e.emp_no = s.emp_no where s.salary > 20000;
 
@@ -395,16 +395,25 @@ select e.first_name, e.last_name, d.dept_name from employees e
 	join dept_emp de on e.emp_no = de.emp_no 
     join departments d on de.dept_no = d.dept_no;
     
--- DID NOT SOLVE Select the name, surname and number of times the employee has worked as a manager
--- INSERT INTO employees (birth_date, first_name, last_name, gender, hire_date) VALUES ('2004-03-29', 'Jhon', 'Smith', 'M', '2022-06-09');
--- INSERT INTO departments (dept_no, dept_name) VALUES (0931, 'Customer_service');
--- INSERT INTO dept_manager (emp_no, dept_no, from_date, to_date) VALUES (15, 0931, '2012-01-15', '2035-01-15');
-select e.first_name, e.last_name, d.dept_name from employees e 
-	join dept_manager de on e.emp_no = de.emp_no 
-    join departments d on de.dept_no = d.dept_no;
+-- Select the name, surname and number of times the employee has worked as a manager
+select E.first_name, E.last_name, COUNT(*) 
+	from employees E, dept_manager DM
+	where E.emp_no = DM.emp_no
+	group by E.first_name, E.last_name;
 
 -- Select the name of employees without any being repeated
 SELECT DISTINCT first_name from employees;
 
--- # 1.4.4 DELETE DATA #
+# 1.4.4 DELETE DATA
+-- Delete all employees with a salary greater than 20,000
 delete employees from employees left join salaries on employees.emp_no = salaries.emp_no where salaries.salary > 20000;
+
+-- Remove the department that has the most employees
+delete from departments where dept_no = 
+	(select max.id from
+		(SELECT 
+		dept_no id, 
+		COUNT(dept_no) total
+		FROM
+			dept_emp
+		GROUP BY dept_no) as max having max(max.total));
